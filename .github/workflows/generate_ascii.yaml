@@ -8,20 +8,26 @@ jobs:
      - name: Checkout Repo
        uses: actions/checkout@v4
 
-     - name: List Repo Files
-       run: ls -ltra
+     - name: Download cowsay
+       run: sudo apt-get install cowsay -y
      
-     - name: Run the script
-       run: |
-        chmod +x ascii-script.sh
-        ./ascii-script.sh
+     - name: Execute Cowsay CMD
+       run: cowsay -f dragon "Run for cover, I am a DRAGON...RAWR" >>dragon.txt
+
+     - name: Upload Dragon text files
+       uses: actions/upload-artifact@v4
+       with: 
+        name: dragon-text-file
+        path: dragon.txt
 
    test_job_2:
      needs: build_job_1
      runs-on: ubuntu-latest
      steps:
-        - name: sleep for 10 seconds
-          run: sleep 10
+        - name: Download Dragon text file
+          uses: actions/download-artifact@v4
+          with:
+            name: dragon-text-file
         
         - name: Test file Exists
           run: grep -i "dragon" dragon.txt
@@ -30,6 +36,10 @@ jobs:
         needs: test_job_2
         runs-on: ubuntu-latest
         steps:
+         - name: Download Dragon text file
+           uses: actions/download-artifact@v4
+           with:
+            name: dragon-text-file
          - name: Read File
            run: cat dragon.txt
 
